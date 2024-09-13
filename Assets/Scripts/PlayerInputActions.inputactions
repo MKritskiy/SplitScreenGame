@@ -22,29 +22,9 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
-                },
-                {
-                    "name": "Move",
-                    "type": "Button",
-                    "id": "e87caa0e-617a-4215-9a00-e8b247df974c",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
                 }
             ],
             "bindings": [
-                {
-                    "name": "",
-                    "id": "8a3aa803-1bc0-44d5-ba0b-85950af3c644",
-                    "path": "<Keyboard>/s",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Grab",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
                 {
                     "name": "",
                     "id": "d83fc29b-2ea0-43dc-b4c9-449419812bb1",
@@ -58,12 +38,156 @@
                 },
                 {
                     "name": "",
-                    "id": "c8edcd13-f96a-4678-807d-53139d45289e",
-                    "path": "<Keyboard>/a",
+                    "id": "8a3aa803-1bc0-44d5-ba0b-85950af3c644",
+                    "path": "<Keyboard>/s",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Move",
+                    "action": "Grab",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Player1",
+            "id": "b88ed4e1-8231-4248-b2aa-c4692c9801f9",
+            "actions": [
+                {
+                    "name": "Grab",
+                    "type": "Button",
+                    "id": "83a1ba8b-45b6-46ef-8dc2-e8f4a239025e",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Shoot",
+                    "type": "Button",
+                    "id": "0b9fdaf0-5a6d-42f7-a9d0-c1f6ae4b8dc9",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "d6b5eba8-4444-4747-bd67-8c696d11bd11",
+                    "path": "<Keyboard>/t",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Shoot",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7e72556c-d405-4af6-bc90-b9d64e072470",
+                    "path": "<Keyboard>/g",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Grab",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Player2",
+            "id": "70ed5ac0-4e21-4dac-b2c0-f26a59847d57",
+            "actions": [
+                {
+                    "name": "Grab",
+                    "type": "Button",
+                    "id": "d2a9620e-dca2-4c5b-980b-af99e33add98",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Shoot",
+                    "type": "Button",
+                    "id": "0697cac3-39c2-41d9-91fd-13210fc8e40c",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "f8327b03-55db-4b80-b526-a4ba99407c89",
+                    "path": "<Keyboard>/i",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Shoot",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4ee4ef50-a43f-41a3-aa08-fd95d0319f78",
+                    "path": "<Keyboard>/k",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Grab",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Player3",
+            "id": "7922e3a9-5859-46f1-bb7c-f5353fdaf437",
+            "actions": [
+                {
+                    "name": "Grab",
+                    "type": "Button",
+                    "id": "32a97d62-0319-4317-973f-6fb0dbed6931",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Shoot",
+                    "type": "Button",
+                    "id": "6f578fd3-c7ca-4025-99ff-579b1e20af79",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "615ba7c1-2a58-4294-9a98-05a64b85f3de",
+                    "path": "<Keyboard>/leftBracket",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Shoot",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4cd44fdb-79eb-4ad1-a748-5c2827e877e0",
+                    "path": "<Keyboard>/quote",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Grab",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

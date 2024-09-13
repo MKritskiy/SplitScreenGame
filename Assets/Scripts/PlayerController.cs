@@ -1,3 +1,4 @@
+using System;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -10,8 +11,12 @@ public class PlayerController : MonoBehaviour
     public GameObject projectilePrefab;
     public Transform projectileSpawnPoint;
     public int health = 3;
-
-    private Rigidbody rb;
+    public float grabRadius = 10f;
+    public float shootInterval = 0.5f;
+    public Transform cameraSpawnPoint;
+    [NonSerialized]
+    public string playerName;
+    public Material poleMaterial;
     private bool isGrabbing = false;
     private Transform grabbedPole;
     private Vector3 grabPoint;
@@ -20,13 +25,40 @@ public class PlayerController : MonoBehaviour
     private InputAction grabAction;
     private InputAction shootAction;
     private InputAction moveAction;
+    private float lastShootTime = 0f;
+    private GameManager gameManager;
+    public LineRenderer lineRenderer;
+    float oldDist = 9999f;
+    GameObject closestObject = null;
+
     void Awake()
     {
         
         playerInput = new PlayerInputActions();
-        grabAction = playerInput.Player.Grab;
-        shootAction = playerInput.Player.Shoot;
+        gameManager = FindFirstObjectByType<GameManager>();
+        if (GameManager.playerCount == 0)
+        {
+            grabAction = playerInput.Player.Grab;
+            shootAction = playerInput.Player.Shoot;
+        }
+        else if (GameManager.playerCount == 1)
+        {
+            grabAction = playerInput.Player1.Grab;
+            shootAction = playerInput.Player1.Shoot;
+        }
+        else if (GameManager.playerCount == 2)
+        {
+            grabAction = playerInput.Player2.Grab;
+            shootAction = playerInput.Player2.Shoot;
+        }
+        else if (GameManager.playerCount == 3)
+        {
+            grabAction = playerInput.Player3.Grab;
+            shootAction = playerInput.Player3.Shoot;
+        }
         releaseVelocity = transform.forward;
+
+
     }
 
     void OnEnable()
@@ -49,19 +81,39 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
+        lineRenderer = GetComponent<LineRenderer>();
+        lineRenderer.enabled = false;
+        lineRenderer.positionCount = 2;
     }
 
     void Update()
     {
-        Debug.Log(isGrabbing);
+
+        Collider[] colliders = Physics.OverlapSphere(transform.position, grabRadius);
+
+        foreach (Collider collider in colliders)
+        {
+            if (collider.transform.childCount > 0 && collider.transform.GetChild(0).CompareTag("Pole"))
+            {
+                float dist = Vector3.Distance(gameObject.transform.position, collider.transform.position);
+                if (dist < oldDist)
+                {
+                    closestObject = collider.gameObject;
+                    oldDist = dist;
+                }
+            }
+        }
+        lineRenderer.SetPosition(0, closestObject.transform.position);
+        lineRenderer.SetPosition(0, gameObject.transform.position);
+
+        //Debug.Log(isGrabbing);
     }
 
     void FixedUpdate()
     {
         if (!isGrabbing)
         {
-            rb.position += releaseVelocity.normalized * speed * Time.deltaTime;
+            transform.position += releaseVelocity.normalized * speed * Time.deltaTime;
         }
         else { 
             RotateAroundPole();
@@ -76,34 +128,40 @@ public class PlayerController : MonoBehaviour
             ReleasePole();
             return;
         }
-        Collider[] colliders = Physics.OverlapSphere(transform.position, 20f);
-        float oldDist = 9999f;
-        GameObject closetsObject = null;
+        oldDist = 9999f;
+        closestObject = null;
+
+        Collider[] colliders = Physics.OverlapSphere(transform.position, grabRadius);
+
         foreach (Collider collider in colliders)
         {
-            if (collider.transform.GetChild(0).CompareTag("Pole"))
+            if (collider.transform.childCount > 0 && collider.transform.GetChild(0).CompareTag("Pole"))
             {
-                float dist = Vector3.Distance(this.gameObject.transform.position, collider.transform.position);
+                float dist = Vector3.Distance(gameObject.transform.position, collider.transform.position);
                 if (dist < oldDist)
                 {
-                    closetsObject = collider.gameObject;
+                    closestObject = collider.gameObject;
                     oldDist = dist;
                 }
             }
         }
-        if (closetsObject != null)
+
+        if (closestObject != null)
         {
-            grabbedPole = closetsObject.transform.GetChild(0).transform;
+            closestObject.GetComponentInParent<Renderer>().material.color = Color.yellow;
+            grabbedPole = closestObject.transform.GetChild(0).transform;
             grabPoint = grabbedPole.position;
-            gameObject.transform.SetParent(grabbedPole, true);
+            gameObject.transform.SetParent(grabbedPole);
             isGrabbing = true;
         }
     }
+
 
     void ReleasePole()
     {
         isGrabbing = false;
         gameObject.transform.SetParent(null);
+        grabbedPole.GetComponentInParent<Renderer>().material = poleMaterial;
         grabbedPole = null;
 
         Vector3 velocity = (grabPoint - transform.position);
@@ -121,7 +179,12 @@ public class PlayerController : MonoBehaviour
 
     void Shoot(InputAction.CallbackContext obj)
     {
-        Instantiate(projectilePrefab, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
+        if (Time.time - lastShootTime >= shootInterval)
+        {
+            var bullet = Instantiate(projectilePrefab, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
+            bullet.GetComponent<Projectile>().myFather = gameObject;
+            lastShootTime = Time.time;
+        }
     }
 
     public void TakeDamage()
@@ -129,9 +192,15 @@ public class PlayerController : MonoBehaviour
         health--;
         if (health <= 0)
         {
+
+            GameManager.playerCount--;
+            if (GameManager.playerCount <= 1)
+            {
+                gameManager.EndGame(gameObject);
+            }
             Destroy(gameObject);
         }
     }
 
-    
+
 }

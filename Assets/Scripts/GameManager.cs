@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -8,49 +10,57 @@ public class GameManager : MonoBehaviour
     public Transform[] spawnPoints; // Точки спавна игроков
     public Vector2 gameFieldSize = new Vector2(10f, 10f); // Размер игрового поля
     public GameObject cameraPrefab;
-
+    public GameObject endGameScreen;
+    public TextMeshProUGUI winnerNumber;
     public static int playerCount = 0;
     private int playerIndex = 0;
-
     void Start()
     {
         int numberOfPlayers = PlayerPrefs.GetInt("NumberOfPlayers", 1);
         playerCount = 0;
         SpawnPlayers(numberOfPlayers);
+        endGameScreen.SetActive(false);
     }
 
-    public static void EndGame(GameObject winner)
+    public void EndGame(GameObject winner)
     {
 
+        endGameScreen.SetActive(true);
+        winnerNumber.text = winner.GetComponent<PlayerController>().playerName + " win!";
     }
-
+    private void Update()
+    {
+    }
     void SpawnPlayers(int numberOfPlayers)
     {
         for (int i = 0; i < numberOfPlayers; i++)
         {
-            Vector3 spawnPosition;
+            Transform spawnPoint;
+            GameObject player;
             if (spawnPoints.Length > 0)
             {
-                spawnPosition = spawnPoints[i % spawnPoints.Length].position;
+                spawnPoint = spawnPoints[i % spawnPoints.Length];
+                player = Instantiate(playerPrefab, spawnPoint.position, spawnPoint.rotation);
             }
             else
             {
-                spawnPosition = new Vector3(
+                Vector3 spawnPosition = new Vector3(
                     Random.Range(-gameFieldSize.x / 2, gameFieldSize.x / 2),
                     0f,
                     Random.Range(-gameFieldSize.y / 2, gameFieldSize.y / 2)
                 );
+                player = Instantiate(playerPrefab, spawnPosition, Quaternion.identity);
+
             }
 
-            GameObject player = Instantiate(playerPrefab, spawnPosition, Quaternion.identity);
+            player.GetComponent<PlayerController>().playerName = "Player " + (playerCount + 1);
             SetupCamera(numberOfPlayers, player.GetComponent<PlayerController>().cameraSpawnPoint);
         }
     }
 
     public void SetupCamera(int numbersOfPlayers, Transform cameraSpawnPoint)
     {
-        GameObject cameraObject = Instantiate(cameraPrefab, cameraSpawnPoint.position, cameraSpawnPoint.rotation, cameraSpawnPoint.transform);
-        Camera camera = cameraObject.GetComponent<Camera>();
+        Camera camera = cameraSpawnPoint.gameObject.GetComponentInChildren<Camera>();
         playerIndex = playerCount;
         float width = 1f / numbersOfPlayers;
         float height = 1f;
@@ -59,5 +69,10 @@ public class GameManager : MonoBehaviour
 
         camera.rect = new Rect(x, y, width, height);
         playerCount++;
+    }
+
+    public void MainMenuButton()
+    {
+        SceneManager.LoadScene("MainMenu");
     }
 }
