@@ -23,9 +23,9 @@ public class Projectile : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        else if (collision.gameObject.CompareTag("Player") && collision.gameObject!=myFather)
+        else if (collision.gameObject.CompareTag("PlayerModel") && collision.gameObject!=myFather)
         {
-            collision.gameObject.GetComponent<PlayerController>().TakeDamage();
+            collision.gameObject.GetComponentInParent<PlayerController>().TakeDamage(gameObject);
             Destroy(gameObject);
         }
     }

@@ -61,6 +61,9 @@ public class GameManager : MonoBehaviour
     public void SetupCamera(int numbersOfPlayers, Transform cameraSpawnPoint)
     {
         Camera camera = cameraSpawnPoint.gameObject.GetComponentInChildren<Camera>();
+        Camera UiCamera = camera.GetComponentsInChildren<Camera>()[1];
+        UiCamera.enabled = true;
+        camera.enabled = true;
         playerIndex = playerCount;
         float width = 1f / numbersOfPlayers;
         float height = 1f;
@@ -68,6 +71,7 @@ public class GameManager : MonoBehaviour
         float y = 0f;
 
         camera.rect = new Rect(x, y, width, height);
+        UiCamera.rect = new Rect(x, y, width, height);
         playerCount++;
     }
 

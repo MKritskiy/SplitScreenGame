@@ -28,7 +28,6 @@ public class PlayerController : MonoBehaviour
     private float lastShootTime = 0f;
     private GameManager gameManager;
     public LineRenderer lineRenderer;
-    float oldDist = 9999f;
     GameObject closestObject = null;
 
     void Awake()
@@ -81,16 +80,56 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        lineRenderer = GetComponent<LineRenderer>();
-        lineRenderer.enabled = false;
+        lineRenderer.enabled = true;
         lineRenderer.positionCount = 2;
+
     }
 
     void Update()
     {
 
-        Collider[] colliders = Physics.OverlapSphere(transform.position, grabRadius);
+        //Debug.Log(isGrabbing);
+    }
+    
+    void FixedUpdate()
+    {
+        
+        if (!isGrabbing)
+        {
+            closestObject = FindClosestPole();
+            if (closestObject != null)
+            {
+                lineRenderer.enabled = true;
+                Color color = lineRenderer.material.color;
+                color.a = 0.3f;
+                lineRenderer.material.color = color;
+                lineRenderer.SetPosition(0, closestObject.transform.position);
+                lineRenderer.SetPosition(1, gameObject.transform.position);
+            } else
+            {
+                lineRenderer.enabled = false;
 
+            }
+            transform.position += releaseVelocity.normalized * speed * Time.deltaTime;
+        }
+        else {
+            if (closestObject != null)
+            {
+                Color color = lineRenderer.material.color;
+                color.a = 1f;
+                lineRenderer.material.color = color;
+                lineRenderer.SetPosition(0, closestObject.transform.position);
+                lineRenderer.SetPosition(1, gameObject.transform.position);
+            }
+            RotateAroundPole();
+        }
+        
+    }
+    private GameObject FindClosestPole()
+    {
+        Collider[] colliders = Physics.OverlapSphere(transform.position, grabRadius);
+        GameObject tmpClosestObject = null;
+        float oldDist = 9999f;
         foreach (Collider collider in colliders)
         {
             if (collider.transform.childCount > 0 && collider.transform.GetChild(0).CompareTag("Pole"))
@@ -98,29 +137,13 @@ public class PlayerController : MonoBehaviour
                 float dist = Vector3.Distance(gameObject.transform.position, collider.transform.position);
                 if (dist < oldDist)
                 {
-                    closestObject = collider.gameObject;
+                    tmpClosestObject = collider.gameObject;
                     oldDist = dist;
                 }
             }
         }
-        lineRenderer.SetPosition(0, closestObject.transform.position);
-        lineRenderer.SetPosition(0, gameObject.transform.position);
-
-        //Debug.Log(isGrabbing);
+        return tmpClosestObject;
     }
-
-    void FixedUpdate()
-    {
-        if (!isGrabbing)
-        {
-            transform.position += releaseVelocity.normalized * speed * Time.deltaTime;
-        }
-        else { 
-            RotateAroundPole();
-        }
-        
-    }
-
     private void GrabPole(InputAction.CallbackContext obj)
     {
         if (isGrabbing)
@@ -128,22 +151,9 @@ public class PlayerController : MonoBehaviour
             ReleasePole();
             return;
         }
-        oldDist = 9999f;
-        closestObject = null;
-
-        Collider[] colliders = Physics.OverlapSphere(transform.position, grabRadius);
-
-        foreach (Collider collider in colliders)
-        {
-            if (collider.transform.childCount > 0 && collider.transform.GetChild(0).CompareTag("Pole"))
-            {
-                float dist = Vector3.Distance(gameObject.transform.position, collider.transform.position);
-                if (dist < oldDist)
-                {
-                    closestObject = collider.gameObject;
-                    oldDist = dist;
-                }
-            }
+        if (closestObject == null)
+        { 
+            closestObject = FindClosestPole();
         }
 
         if (closestObject != null)
@@ -159,6 +169,9 @@ public class PlayerController : MonoBehaviour
 
     void ReleasePole()
     {
+        
+
+
         isGrabbing = false;
         gameObject.transform.SetParent(null);
         grabbedPole.GetComponentInParent<Renderer>().material = poleMaterial;
@@ -187,7 +200,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void TakeDamage()
+    public void TakeDamage(GameObject bullet)
     {
         health--;
         if (health <= 0)
@@ -196,9 +209,15 @@ public class PlayerController : MonoBehaviour
             GameManager.playerCount--;
             if (GameManager.playerCount <= 1)
             {
-                gameManager.EndGame(gameObject);
+                gameManager.EndGame(bullet.GetComponent<Projectile>().myFather);
             }
-            Destroy(gameObject);
+            
+            cameraSpawnPoint
+                .gameObject
+                .GetComponentInChildren<CameraScript>()
+                .DieScreen.SetActive(true);
+
+            Destroy(lineRenderer.gameObject);
         }
     }
 
