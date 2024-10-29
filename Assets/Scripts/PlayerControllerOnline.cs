@@ -93,7 +93,7 @@ public class PlayerControllerOnline : NetworkBehaviour, PlayerController
     
     void FixedUpdate()
     {
-        
+
         if (isOwned)
         {
             if (!isGrabbing)
@@ -172,6 +172,7 @@ public class PlayerControllerOnline : NetworkBehaviour, PlayerController
             grabbedPole = closestObject.transform.GetChild(0).transform;
             grabPoint = grabbedPole.position;
             gameObject.transform.SetParent(grabbedPole);
+            
             isGrabbing = true;
         }
         
