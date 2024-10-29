@@ -36,7 +36,7 @@ public class GameManager : MonoBehaviour
     private void Update()
     {
     }
-    void SpawnPlayers(int numberOfPlayers)
+    public void SpawnPlayers(int numberOfPlayers)
     {
         for (int i = 0; i < numberOfPlayers; i++)
         {

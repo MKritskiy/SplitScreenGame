@@ -118,6 +118,7 @@ GameObject:
   - component: {fileID: 2170456851912764998}
   - component: {fileID: 7456052087644090771}
   - component: {fileID: 5203038844107857821}
+  - component: {fileID: 8251513199926226118}
   m_Layer: 0
   m_Name: PlayerModel
   m_TagString: PlayerModel
@@ -343,6 +344,39 @@ LineRenderer:
   m_UseWorldSpace: 1
   m_Loop: 0
   m_ApplyActiveColorSpace: 1
+--- !u!114 &8251513199926226118
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 662184538079483011}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ff3ba0becae47b8b9381191598957c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 1
+  syncMode: 0
+  syncInterval: 0
+  target: {fileID: 4370992347678448383}
+  syncPosition: 1
+  syncRotation: 1
+  syncScale: 0
+  onlySyncOnChange: 1
+  compressRotation: 1
+  interpolatePosition: 1
+  interpolateRotation: 1
+  interpolateScale: 1
+  coordinateSpace: 0
+  timelineOffset: 1
+  showGizmos: 0
+  showOverlay: 0
+  overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
+  onlySyncOnChangeCorrectionMultiplier: 2
+  rotationSensitivity: 0.01
+  positionPrecision: 0.01
+  scalePrecision: 0.01
 --- !u!1 &1274481088441735698
 GameObject:
   m_ObjectHideFlags: 0
@@ -488,6 +522,7 @@ GameObject:
   - component: {fileID: 8000101166874336907}
   - component: {fileID: 1310561883617244970}
   - component: {fileID: 3925249334539503355}
+  - component: {fileID: 1282108099937155252}
   m_Layer: 0
   m_Name: Camera
   m_TagString: MainCamera
@@ -579,6 +614,39 @@ MonoBehaviour:
   playerHP: {fileID: 5333933382473147314}
   DieScreen: {fileID: 2766308296341947784}
   isNetworkGame: 1
+--- !u!114 &1282108099937155252
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1936063666166097717}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ff3ba0becae47b8b9381191598957c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 1
+  syncMode: 0
+  syncInterval: 0
+  target: {fileID: 8000101166874336907}
+  syncPosition: 1
+  syncRotation: 1
+  syncScale: 0
+  onlySyncOnChange: 1
+  compressRotation: 1
+  interpolatePosition: 1
+  interpolateRotation: 1
+  interpolateScale: 1
+  coordinateSpace: 0
+  timelineOffset: 1
+  showGizmos: 0
+  showOverlay: 0
+  overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
+  onlySyncOnChangeCorrectionMultiplier: 2
+  rotationSensitivity: 0.01
+  positionPrecision: 0.01
+  scalePrecision: 0.01
 --- !u!1 &2394662489913120238
 GameObject:
   m_ObjectHideFlags: 0
@@ -662,9 +730,9 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  speed: 5
+  speed: 0
   rotationSpeed: 100
-  projectilePrefab: {fileID: 8723125680233236760, guid: 7b28485fde0137c4db97aa0146fd3e1b, type: 3}
+  projectilePrefab: {fileID: 8723125680233236760, guid: d50c56497739e984f851d57223b7d61a, type: 3}
   projectileSpawnPoint: {fileID: 5166518368165896457}
   health: 1
   grabRadius: 15
