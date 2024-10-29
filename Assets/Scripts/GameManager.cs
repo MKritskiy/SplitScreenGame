@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI winnerNumber;
     public static int playerCount = 0;
     private int playerIndex = 0;
+
     void Start()
     {
         int numberOfPlayers = PlayerPrefs.GetInt("NumberOfPlayers", 1);
@@ -24,10 +25,10 @@ public class GameManager : MonoBehaviour
 
     public void EndGame(GameObject winner)
     {
-
         endGameScreen.SetActive(true);
         winnerNumber.text = winner.GetComponent<PlayerController>().playerName + " win!";
     }
+
     private void Update()
     {
     }

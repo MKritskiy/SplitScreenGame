@@ -1,10 +1,9 @@
+using Mirror;
 using System;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using static UnityEngine.GraphicsBuffer;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : NetworkBehaviour
 {
     public float speed = 5f;
     public float rotationSpeed = 100f;
@@ -87,13 +86,13 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-
+        if (!isLocalPlayer) return;
         //Debug.Log(isGrabbing);
     }
     
     void FixedUpdate()
     {
-        
+        if (!isLocalPlayer) return;
         if (!isGrabbing)
         {
             closestObject = FindClosestPole();
