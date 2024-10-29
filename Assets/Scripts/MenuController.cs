@@ -20,13 +20,17 @@ public class MenuController : MonoBehaviour
     {
         int numberOfPlayers = Mathf.RoundToInt(playerCountSlider.value);
         PlayerPrefs.SetInt("NumberOfPlayers", numberOfPlayers);
-        SceneManager.LoadScene("GameScene"); // Загрузите вашу основную сцену
+        SceneManager.LoadScene("GameSceneLocal"); // Загрузите вашу основную сцену
     }
     public void HostGame()
     {
         if (PlayerPrefs.HasKey("HostAddress"))
         {
             PlayerPrefs.DeleteKey("HostAddress");
+        }
+        if (PlayerPrefs.HasKey("NumberOfPlayers"))
+        {
+            PlayerPrefs.DeleteKey("NumberOfPlayers");
         }
         SceneManager.LoadScene("LobbyScene");
     }

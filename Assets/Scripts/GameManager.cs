@@ -18,16 +18,19 @@ public class GameManager : MonoBehaviour
     public bool isNetworkGame = false;
     void Start()
     {
-        int numberOfPlayers = PlayerPrefs.GetInt("NumberOfPlayers", 1);
-        playerCount = 0;
-        SpawnPlayers(numberOfPlayers);
+        if (!isNetworkGame)
+        {
+            int numberOfPlayers = PlayerPrefs.GetInt("NumberOfPlayers", 1);
+            playerCount = 0;
+            SpawnPlayers(numberOfPlayers);
+        }
         endGameScreen.SetActive(false);
     }
 
     public void EndGame(GameObject winner)
     {
         endGameScreen.SetActive(true);
-        winnerNumber.text = winner.GetComponent<PlayerController>().playerName + " win!";
+        winnerNumber.text = winner.GetComponent<PlayerControllerLocal>().playerName + " win!";
     }
 
     private void Update()
@@ -55,8 +58,8 @@ public class GameManager : MonoBehaviour
 
             }
 
-            player.GetComponent<PlayerController>().playerName = "Player " + (playerCount + 1);
-            SetupCamera(numberOfPlayers, player.GetComponent<PlayerController>().cameraSpawnPoint);
+            player.GetComponent<PlayerControllerLocal>().playerName = "Player " + (playerCount + 1);
+            SetupCamera(numberOfPlayers, player.GetComponent<PlayerControllerLocal>().cameraSpawnPoint);
         }
     }
 

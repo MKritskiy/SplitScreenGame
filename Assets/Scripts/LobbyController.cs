@@ -11,7 +11,7 @@ public class LobbyController : MonoBehaviour
     public NetworkManager networkManager;
     public TMP_Text playerCountText;
     public Button startGameButton;
-
+    private int playerCount = 0;
     void Start()
     {
         if (PlayerPrefs.HasKey("HostAddress"))
@@ -32,8 +32,8 @@ public class LobbyController : MonoBehaviour
     {
         if (networkManager.isNetworkActive)
         {
-            playerCountText.text = "Players: " + networkManager.numPlayers;
-            startGameButton.interactable = networkManager.numPlayers > 1;
+            playerCountText.text = "Players: " + playerCount;
+            //startGameButton.interactable = networkManager.numPlayers > 1;
         }
     }
 
