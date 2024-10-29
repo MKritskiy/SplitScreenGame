@@ -1253,6 +1253,7 @@ MonoBehaviour:
   cameraPrefab: {fileID: 1690440377690958191, guid: 491e4d6d370217d45a0cd5321b690425, type: 3}
   endGameScreen: {fileID: 1253681071}
   winnerNumber: {fileID: 562724598}
+  isNetworkGame: 1
 --- !u!4 &684145237
 Transform:
   m_ObjectHideFlags: 0

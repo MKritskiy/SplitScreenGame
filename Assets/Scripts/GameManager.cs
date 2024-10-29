@@ -14,7 +14,8 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI winnerNumber;
     public static int playerCount = 0;
     private int playerIndex = 0;
-
+    [SerializeField]
+    public bool isNetworkGame = false;
     void Start()
     {
         int numberOfPlayers = PlayerPrefs.GetInt("NumberOfPlayers", 1);
@@ -65,14 +66,24 @@ public class GameManager : MonoBehaviour
         Camera UiCamera = camera.GetComponentsInChildren<Camera>()[1];
         UiCamera.enabled = true;
         camera.enabled = true;
-        playerIndex = playerCount;
-        float width = 1f / numbersOfPlayers;
-        float height = 1f;
-        float x = playerIndex * width;
-        float y = 0f;
+        if (isNetworkGame)
+        {
+            // В сетевой игре каждый игрок имеет свою камеру
+            camera.rect = new Rect(0, 0, 1, 1);
+            UiCamera.rect = new Rect(0, 0, 1, 1);
+        }
+        else
+        {
+            // В локальной игре разделение экрана
+            playerIndex = playerCount;
+            float width = 1f / numbersOfPlayers;
+            float height = 1f;
+            float x = playerIndex * width;
+            float y = 0f;
 
-        camera.rect = new Rect(x, y, width, height);
-        UiCamera.rect = new Rect(x, y, width, height);
+            camera.rect = new Rect(x, y, width, height);
+            UiCamera.rect = new Rect(x, y, width, height);
+        }
         playerCount++;
     }
 

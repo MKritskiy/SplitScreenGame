@@ -24,6 +24,10 @@ public class MenuController : MonoBehaviour
     }
     public void HostGame()
     {
+        if (PlayerPrefs.HasKey("HostAddress"))
+        {
+            PlayerPrefs.DeleteKey("HostAddress");
+        }
         SceneManager.LoadScene("LobbyScene");
     }
     public void JoinGame()

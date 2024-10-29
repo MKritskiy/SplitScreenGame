@@ -39,6 +39,7 @@ public class LobbyController : MonoBehaviour
 
     public void StartGame()
     {
+        
         networkManager.ServerChangeScene("GameSceneOnline");
     }
 
@@ -47,5 +48,12 @@ public class LobbyController : MonoBehaviour
         networkManager.StopHost();
         networkManager.StopClient();
         SceneManager.LoadScene("MainMenu");
+    }
+    private void ResetPlayerPrefs()
+    {
+        if (PlayerPrefs.HasKey("HostAddress"))
+        {
+            PlayerPrefs.DeleteKey("HostAddress");
+        }
     }
 }
