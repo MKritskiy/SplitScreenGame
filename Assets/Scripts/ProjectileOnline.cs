@@ -1,5 +1,6 @@
 using Mirror;
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class ProjectileOnline : NetworkBehaviour
@@ -32,9 +33,10 @@ public class ProjectileOnline : NetworkBehaviour
             transform.Translate(Vector3.forward * speed * Time.deltaTime);
         }
     }
-
+    [ServerCallback]
     void OnCollisionEnter(Collision collision)
     {
+        Debug.Log("ShootFunc");
         if (inited && isServer)
         {
             if (collision.gameObject.CompareTag("Wall"))
@@ -43,7 +45,11 @@ public class ProjectileOnline : NetworkBehaviour
             }
             else if (collision.gameObject.CompareTag("PlayerModel") && collision.gameObject != myFather)
             {
-                collision.gameObject.GetComponentInParent<PlayerControllerLocal>().TakeDamage(gameObject);
+                Debug.Log("PlayerTakeDamage");
+
+                collision.gameObject.GetComponentInParent<PlayerControllerOnline>().TakeDamage(gameObject);
+                Debug.Log("BulletDestroy");
+
                 NetworkServer.Destroy(gameObject);
             }
         }

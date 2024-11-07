@@ -578,6 +578,7 @@ MonoBehaviour:
   canvas: {fileID: 3727778950870602596}
   playerHP: {fileID: 5333933382473147314}
   DieScreen: {fileID: 2766308296341947784}
+  isNetworkGame: 1
 --- !u!1 &2394662489913120238
 GameObject:
   m_ObjectHideFlags: 0
@@ -656,9 +657,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76a7b0e9f217ae540b8964ea0152b3a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0
   speed: 5
   rotationSpeed: 100
   projectilePrefab: {fileID: 8723125680233236760, guid: 7b28485fde0137c4db97aa0146fd3e1b, type: 3}

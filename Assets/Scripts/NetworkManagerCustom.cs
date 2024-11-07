@@ -75,7 +75,7 @@ public class NetworkManagerCustom : NetworkManager
         playerConnected = true;
     }
 
-    private void Update()
+    public override void Update()
     {
         if (Input.GetKeyDown(KeyCode.Mouse0) && !playerSpawned && playerConnected)
         {
