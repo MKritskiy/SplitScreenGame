@@ -93,7 +93,8 @@ public class PlayerControllerOnline : NetworkBehaviour, PlayerController
     
     void FixedUpdate()
     {
-
+        if (lineRenderer == null)
+            return;
         if (!isGrabbingSync)
         //if (!isGrabbing)
         {
@@ -236,34 +237,36 @@ public class PlayerControllerOnline : NetworkBehaviour, PlayerController
     [ClientRpc]
     public void TakeDamage(string shooterName)
     {
-
         health--;
         Debug.Log("health--");
 
         if (health <= 0)
         {
-
             NetworkManagerCustom.playerCount--;
             Debug.Log("playerCount--");
-
 
             Camera.DieScreen.SetActive(true);
             Debug.Log("BeforeDelete");
             if (NetworkManagerCustom.playerCount <= 1)
             {
+                SetWinner(shooterName);
                 EndGame(shooterName);
             }
 
-            //NetworkClient.Disconnect();
             Destroy(lineRenderer.gameObject);
-
         }
     }
-    [ClientRpc]
+
+    [Command]
     public void EndGame(string shooterName)
     {
         GameManager.Instance.EndGame(shooterName);
     }
 
+    [Command]
+    public void SetWinner(string shooterName)
+    {
+        PlayerPrefs.SetString("WinnerName", shooterName);
+    }
 
 }

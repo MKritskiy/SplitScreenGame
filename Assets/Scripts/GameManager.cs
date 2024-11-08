@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static NetworkManagerCustom;
 
 public class GameManager : MonoBehaviour
 {
@@ -43,17 +44,19 @@ public class GameManager : MonoBehaviour
 
     public void EndGame(string winnerName)
     {
-        endGameScreen.SetActive(true);
         if (isNetworkGame)
         {
-            winnerNumber.text = winnerName + " win!";
-
+            EndGameMessage m = new EndGameMessage();
+            m.winnerName = winnerName;
+            NetworkClient.Send(m);
         }
         else
         {
+            endGameScreen.SetActive(true);
             winnerNumber.text = winnerName + " win!";
         }
     }
+
 
     private void Update()
     {

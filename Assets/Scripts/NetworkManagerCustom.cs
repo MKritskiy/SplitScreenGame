@@ -11,13 +11,18 @@ public class NetworkManagerCustom : NetworkManager
     public Vector2 gameFieldSize = new Vector2(10f, 10f);
     public static int playerCount = 0;
     //public ClientCounter clientCounter;
-
+    public string winnerName;
     public struct PosMessage : NetworkMessage
     {
     }
 
     public struct StartGameMessage : NetworkMessage
     {
+    }
+
+    public struct EndGameMessage : NetworkMessage
+    {
+        public string winnerName;
     }
 
     public void OnCreateCharacter(NetworkConnectionToClient conn, PosMessage message)
@@ -30,7 +35,13 @@ public class NetworkManagerCustom : NetworkManager
     {
         ServerChangeScene("GameSceneOnline");
     }
+    public void OnEndGame(NetworkConnectionToClient conn, EndGameMessage message)
+    {
+        winnerName = message.winnerName;
 
+        ServerChangeScene("EndOnlineGameScene");
+
+    }
     GameObject SpawnPlayer()
     {
         Transform spawnPoint;
@@ -67,12 +78,19 @@ public class NetworkManagerCustom : NetworkManager
         NetworkClient.Send(m);
         
     }
+    public void EndGame()
+    {
+        EndGameMessage m = new EndGameMessage();
+        NetworkClient.Send(m);
+    }
 
     public override void OnStartServer()
     {
         base.OnStartServer();
         NetworkServer.RegisterHandler<PosMessage>(OnCreateCharacter); //указываем, какой struct должен прийти на сервер, чтобы выполнился свапн
         NetworkServer.RegisterHandler<StartGameMessage>(OnStartGame);
+        NetworkServer.RegisterHandler<EndGameMessage>(OnEndGame);
+
         Debug.Log("Server started");
 
         //GameObject clientCounterObject = new GameObject("ClientCounter");

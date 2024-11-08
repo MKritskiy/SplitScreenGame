@@ -17,5 +17,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/LobbyScene.unity
     guid: b0bfbc2991561d141ab81a62ff138ea6
+  - enabled: 1
+    path: Assets/Scenes/EndOnlineGameScene.unity
+    guid: d198460fcecda7742b46a4b752522547
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 58ca969f1729de04fbc181dde2025f04, type: 2}
