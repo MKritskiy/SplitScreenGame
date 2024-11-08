@@ -34,22 +34,22 @@ public class PlayerControllerLocal : MonoBehaviour, PlayerController
         
         playerInput = new PlayerInputActions();
         gameManager = FindFirstObjectByType<GameManager>();
-        if (GameManager.playerCount == 0)
+        if (GameManager.Instance.playerCount == 0)
         {
             grabAction = playerInput.Player.Grab;
             shootAction = playerInput.Player.Shoot;
         }
-        else if (GameManager.playerCount == 1)
+        else if (GameManager.Instance.playerCount == 1)
         {
             grabAction = playerInput.Player1.Grab;
             shootAction = playerInput.Player1.Shoot;
         }
-        else if (GameManager.playerCount == 2)
+        else if (GameManager.Instance.playerCount == 2)
         {
             grabAction = playerInput.Player2.Grab;
             shootAction = playerInput.Player2.Shoot;
         }
-        else if (GameManager.playerCount == 3)
+        else if (GameManager.Instance.playerCount == 3)
         {
             grabAction = playerInput.Player3.Grab;
             shootAction = playerInput.Player3.Shoot;
@@ -199,16 +199,16 @@ public class PlayerControllerLocal : MonoBehaviour, PlayerController
         }
     }
 
-    public void TakeDamage(GameObject bullet)
+    public void TakeDamage(string shooterName)
     {
         health--;
         if (health <= 0)
         {
 
-            GameManager.playerCount--;
-            if (GameManager.playerCount <= 1)
+            GameManager.Instance.playerCount--;
+            if (GameManager.Instance.playerCount <= 1)
             {
-                gameManager.EndGame(bullet.GetComponent<Projectile>().myFather);
+                GameManager.Instance.EndGame(shooterName);
             }
             
             cameraSpawnPoint

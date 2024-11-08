@@ -242,16 +242,11 @@ PrefabInstance:
       value: Pole (2)
       objectReference: {fileID: 0}
     - target: {fileID: 8534855534946216529, guid: 9e6c7f3be11b8474d8ef99b5b757e4f7, type: 3}
-      propertyPath: m_IsTrigger
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8534855534946216529, guid: 9e6c7f3be11b8474d8ef99b5b757e4f7, type: 3}
       propertyPath: m_ProvidesContacts
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects:
-    - {fileID: 8146738903550846309, guid: 9e6c7f3be11b8474d8ef99b5b757e4f7, type: 3}
+    m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9e6c7f3be11b8474d8ef99b5b757e4f7, type: 3}
@@ -674,16 +669,11 @@ PrefabInstance:
       value: Pole (4)
       objectReference: {fileID: 0}
     - target: {fileID: 8534855534946216529, guid: 9e6c7f3be11b8474d8ef99b5b757e4f7, type: 3}
-      propertyPath: m_IsTrigger
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8534855534946216529, guid: 9e6c7f3be11b8474d8ef99b5b757e4f7, type: 3}
       propertyPath: m_ProvidesContacts
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects:
-    - {fileID: 8146738903550846309, guid: 9e6c7f3be11b8474d8ef99b5b757e4f7, type: 3}
+    m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9e6c7f3be11b8474d8ef99b5b757e4f7, type: 3}
@@ -1263,6 +1253,7 @@ MonoBehaviour:
   cameraPrefab: {fileID: 1690440377690958191, guid: 491e4d6d370217d45a0cd5321b690425, type: 3}
   endGameScreen: {fileID: 1253681071}
   winnerNumber: {fileID: 562724598}
+  playerCount: 0
   isNetworkGame: 0
 --- !u!4 &684145237
 Transform:
@@ -2492,16 +2483,11 @@ PrefabInstance:
       value: Pole (3)
       objectReference: {fileID: 0}
     - target: {fileID: 8534855534946216529, guid: 9e6c7f3be11b8474d8ef99b5b757e4f7, type: 3}
-      propertyPath: m_IsTrigger
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8534855534946216529, guid: 9e6c7f3be11b8474d8ef99b5b757e4f7, type: 3}
       propertyPath: m_ProvidesContacts
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects:
-    - {fileID: 8146738903550846309, guid: 9e6c7f3be11b8474d8ef99b5b757e4f7, type: 3}
+    m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9e6c7f3be11b8474d8ef99b5b757e4f7, type: 3}
@@ -2686,16 +2672,11 @@ PrefabInstance:
       value: Pole (1)
       objectReference: {fileID: 0}
     - target: {fileID: 8534855534946216529, guid: 9e6c7f3be11b8474d8ef99b5b757e4f7, type: 3}
-      propertyPath: m_IsTrigger
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8534855534946216529, guid: 9e6c7f3be11b8474d8ef99b5b757e4f7, type: 3}
       propertyPath: m_ProvidesContacts
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects:
-    - {fileID: 8146738903550846309, guid: 9e6c7f3be11b8474d8ef99b5b757e4f7, type: 3}
+    m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9e6c7f3be11b8474d8ef99b5b757e4f7, type: 3}

@@ -1,3 +1,4 @@
+using Mirror;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -6,16 +7,29 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager Instance;
     public GameObject playerPrefab; // Префаб игрока
     public Transform[] spawnPoints; // Точки спавна игроков
     public Vector2 gameFieldSize = new Vector2(10f, 10f); // Размер игрового поля
     public GameObject cameraPrefab;
     public GameObject endGameScreen;
     public TextMeshProUGUI winnerNumber;
-    public static int playerCount = 0;
+    public int playerCount = 0;
     private int playerIndex = 0;
     [SerializeField]
     public bool isNetworkGame = false;
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+        } else
+        {
+            Instance = this;
+        }
+    }
+
     void Start()
     {
         if (!isNetworkGame)
@@ -27,10 +41,18 @@ public class GameManager : MonoBehaviour
         endGameScreen.SetActive(false);
     }
 
-    public void EndGame(GameObject winner)
+    public void EndGame(string winnerName)
     {
         endGameScreen.SetActive(true);
-        winnerNumber.text = winner.GetComponent<PlayerControllerLocal>().playerName + " win!";
+        if (isNetworkGame)
+        {
+            winnerNumber.text = winnerName + " win!";
+
+        }
+        else
+        {
+            winnerNumber.text = winnerName + " win!";
+        }
     }
 
     private void Update()
@@ -92,6 +114,7 @@ public class GameManager : MonoBehaviour
 
     public void MainMenuButton()
     {
+        if (isNetworkGame) NetworkManager.singleton.StopHost();
         SceneManager.LoadScene("MainMenu");
     }
 }

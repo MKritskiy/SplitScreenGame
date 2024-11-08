@@ -1,3 +1,4 @@
+using Mirror;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -12,14 +13,22 @@ public class CameraScript : MonoBehaviour
     public bool isNetworkGame = false;
 
     private PlayerController father;
-
+    private bool isOwned = false;
 
     void Start()
     {
         if (isNetworkGame)
         {
-            father = playerHP.GetComponentInParent<PlayerControllerOnline>();
-            playerNumber.text = (father as PlayerControllerOnline).playerName;
+            
+            isOwned = playerHP.GetComponentInParent<PlayerControllerOnline>().isOwned;
+            if (isOwned)
+            {
+                father = playerHP.GetComponentInParent<PlayerControllerOnline>();
+                playerNumber.text = (father as PlayerControllerOnline).playerName;     
+            } else
+            {
+                gameObject.SetActive(false);
+            }
 
         }
         else

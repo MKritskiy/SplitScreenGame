@@ -32,6 +32,7 @@ public class MenuController : MonoBehaviour
         {
             PlayerPrefs.DeleteKey("NumberOfPlayers");
         }
+        //SceneManager.LoadScene("GameSceneOnline");
         SceneManager.LoadScene("LobbyScene");
     }
     public void JoinGame()
@@ -39,5 +40,7 @@ public class MenuController : MonoBehaviour
         string hostAddress = hostAddressInput.text;
         PlayerPrefs.SetString("HostAddress", hostAddress);
         SceneManager.LoadScene("LobbyScene");
+        //SceneManager.LoadScene("GameSceneOnline");
+
     }
 }

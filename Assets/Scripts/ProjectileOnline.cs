@@ -33,7 +33,7 @@ public class ProjectileOnline : NetworkBehaviour
             transform.Translate(Vector3.forward * speed * Time.deltaTime);
         }
     }
-    [ServerCallback]
+    [Server]
     void OnCollisionEnter(Collision collision)
     {
         Debug.Log("ShootFunc");
@@ -46,8 +46,8 @@ public class ProjectileOnline : NetworkBehaviour
             else if (collision.gameObject.CompareTag("PlayerModel") && collision.gameObject != myFather)
             {
                 Debug.Log("PlayerTakeDamage");
-
-                collision.gameObject.GetComponentInParent<PlayerControllerOnline>().TakeDamage(gameObject);
+                string shooterName = myFather.GetComponent<PlayerControllerOnline>().playerName;
+                collision.gameObject.GetComponentInParent<PlayerControllerOnline>().TakeDamage(shooterName);
                 Debug.Log("BulletDestroy");
 
                 NetworkServer.Destroy(gameObject);

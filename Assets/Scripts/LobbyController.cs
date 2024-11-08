@@ -8,12 +8,25 @@ using UnityEngine.UI;
 
 public class LobbyController : MonoBehaviour
 {
-    public NetworkManager networkManager;
+    public NetworkManagerCustom networkManager;
+    //public ClientCounter clientCounter;
     public TMP_Text playerCountText;
+    public TMP_Text addressText;
+
     public Button startGameButton;
-    private int playerCount = 0;
     void Start()
     {
+        if (NetworkManager.singleton == null)
+        {
+            GameObject networkManagerObject = new GameObject("NetworkManager");
+            networkManager = networkManagerObject.AddComponent<NetworkManagerCustom>();
+            DontDestroyOnLoad(networkManagerObject);
+        }
+        else
+        {
+            networkManager = NetworkManager.singleton as NetworkManagerCustom;
+        }
+        networkManager.ResetPlayerCount();
         if (PlayerPrefs.HasKey("HostAddress"))
         {
             string hostAddress = PlayerPrefs.GetString("HostAddress");
@@ -26,25 +39,28 @@ public class LobbyController : MonoBehaviour
         }
 
         networkManager.playerPrefab = Resources.Load<GameObject>("Player"); // Убедитесь, что префаб игрока находится в папке Resources
+        addressText.text = "Address: " + networkManager.networkAddress;
+        //clientCounter = networkManager.clientCounter;
     }
 
     void Update()
     {
+        
         if (networkManager.isNetworkActive)
         {
-            playerCountText.text = "Players: " + playerCount;
+            //playerCountText.text = "Players: " + clientCounter.clientsCount;
             //startGameButton.interactable = networkManager.numPlayers > 1;
         }
     }
 
     public void StartGame()
     {
-        
-        networkManager.ServerChangeScene("GameSceneOnline");
+        networkManager.StartGame();
     }
 
     public void ExitLobby()
     {
+        
         networkManager.StopHost();
         networkManager.StopClient();
         SceneManager.LoadScene("MainMenu");

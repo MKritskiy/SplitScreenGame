@@ -578,7 +578,7 @@ MonoBehaviour:
   canvas: {fileID: 3727778950870602596}
   playerHP: {fileID: 5333933382473147314}
   DieScreen: {fileID: 2766308296341947784}
-  isNetworkGame: 1
+  isNetworkGame: 0
 --- !u!1 &2394662489913120238
 GameObject:
   m_ObjectHideFlags: 0

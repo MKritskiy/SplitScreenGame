@@ -12,10 +12,11 @@ public class PlayerControllerOnline : NetworkBehaviour, PlayerController
     public int health = 3;
     public float grabRadius = 10f;
     public float shootInterval = 0.5f;
-    public Transform cameraSpawnPoint;
+    public CameraScript Camera;
     [NonSerialized]
     public string playerName;
     public Material poleMaterial;
+
     private bool isGrabbing = false;
     private Transform grabbedPole;
     private Vector3 grabPoint;
@@ -25,19 +26,29 @@ public class PlayerControllerOnline : NetworkBehaviour, PlayerController
     private InputAction shootAction;
     private InputAction moveAction;
     private float lastShootTime = 0f;
-    private GameManager gameManager;
+    
     public LineRenderer lineRenderer;
     GameObject closestObject = null;
+
+
+    [SyncVar]
+    private bool isGrabbingSync;
+
+    [SyncVar]
+    private Vector3 grabPointSync;
+
+    [SyncVar]
+    private Vector3 releaseVelocitySync;
 
     void Awake()
     {
         
         playerInput = new PlayerInputActions();
-        gameManager = FindFirstObjectByType<GameManager>();            
+                    
         grabAction = playerInput.Player.Grab;
         shootAction = playerInput.Player.Shoot;
-        
 
+        playerName = "Player " + (NetworkManagerCustom.playerCount++ + 1);
         releaseVelocity = transform.forward;
 
 
@@ -83,39 +94,40 @@ public class PlayerControllerOnline : NetworkBehaviour, PlayerController
     void FixedUpdate()
     {
 
-
-            if (!isGrabbing)
+        if (!isGrabbingSync)
+        //if (!isGrabbing)
+        {
+            closestObject = FindClosestPole();
+            if (closestObject != null)
             {
-                closestObject = FindClosestPole();
-                if (closestObject != null)
-                {
-                    lineRenderer.enabled = true;
-                    Color color = lineRenderer.material.color;
-                    color.a = 0.3f;
-                    lineRenderer.material.color = color;
-                    lineRenderer.SetPosition(0, closestObject.transform.position);
-                    lineRenderer.SetPosition(1, gameObject.transform.position);
-                }
-                else
-                {
-                    lineRenderer.enabled = false;
-
-                }
-                transform.position += releaseVelocity.normalized * speed * Time.deltaTime;
+                lineRenderer.enabled = true;
+                Color color = lineRenderer.material.color;
+                color.a = 0.3f;
+                lineRenderer.material.color = color;
+                lineRenderer.SetPosition(0, closestObject.transform.position);
+                lineRenderer.SetPosition(1, gameObject.transform.position);
             }
             else
             {
-                if (closestObject != null)
-                {
-                    Color color = lineRenderer.material.color;
-                    color.a = 1f;
-                    lineRenderer.material.color = color;
-                    lineRenderer.SetPosition(0, closestObject.transform.position);
-                    lineRenderer.SetPosition(1, gameObject.transform.position);
-                }
-                RotateAroundPole();
-                
+                lineRenderer.enabled = false;
+
             }
+            //transform.position += releaseVelocity.normalized * speed * Time.deltaTime;
+            transform.position += releaseVelocitySync.normalized * speed * Time.deltaTime;
+        }
+        else
+        {
+            if (closestObject != null)
+            {
+                Color color = lineRenderer.material.color;
+                color.a = 1f;
+                lineRenderer.material.color = color;
+                lineRenderer.SetPosition(0, closestObject.transform.position);
+                lineRenderer.SetPosition(1, gameObject.transform.position);
+            }
+            RotateAroundPole();
+
+        }
         
         
     }
@@ -142,7 +154,8 @@ public class PlayerControllerOnline : NetworkBehaviour, PlayerController
     [ClientRpc]
     private void GrabPole(InputAction.CallbackContext obj)
     {
-        if (isGrabbing)
+        if (isGrabbingSync)
+        //if (isGrabbing)
         {
             ReleasePole();
             return;
@@ -156,10 +169,12 @@ public class PlayerControllerOnline : NetworkBehaviour, PlayerController
         {
             closestObject.GetComponentInParent<Renderer>().material.color = Color.yellow;
             grabbedPole = closestObject.transform.GetChild(0).transform;
-            grabPoint = grabbedPole.position;
+            //grabPoint = grabbedPole.position;
+            grabPointSync = grabbedPole.position;
             gameObject.transform.SetParent(grabbedPole);
             
-            isGrabbing = true;
+            //isGrabbing = true;
+            isGrabbingSync = true;
         }
         
     }
@@ -173,13 +188,16 @@ public class PlayerControllerOnline : NetworkBehaviour, PlayerController
     
     void ReleasePole()
     {
-        isGrabbing = false;
+        isGrabbingSync = false;
+        //isGrabbing = false;
         gameObject.transform.SetParent(null);
         grabbedPole.GetComponentInParent<Renderer>().material = poleMaterial;
         grabbedPole = null;
 
-        Vector3 velocity = (grabPoint - transform.position);
-        releaseVelocity = Vector3.Cross(velocity, Vector3.up);
+        //Vector3 velocity = (grabPoint - transform.position);
+        Vector3 velocity = (grabPointSync - transform.position);
+        //releaseVelocity = Vector3.Cross(velocity, Vector3.up);
+        releaseVelocitySync = Vector3.Cross(velocity, Vector3.up);
     }
     [Command]
     void RotateAroundPole()
@@ -203,8 +221,8 @@ public class PlayerControllerOnline : NetworkBehaviour, PlayerController
             if (Time.time - lastShootTime >= shootInterval)
             {
                 var bullet = Instantiate(projectilePrefab, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
-                NetworkServer.Spawn(bullet);
                 bullet.GetComponent<ProjectileOnline>().Init(gameObject);
+                NetworkServer.Spawn(bullet);
 
                 lastShootTime = Time.time;
             }
@@ -215,32 +233,36 @@ public class PlayerControllerOnline : NetworkBehaviour, PlayerController
     {
         Shoot(obj);
     }
-    [Server]
-    public void TakeDamage(GameObject bullet)
+    [ClientRpc]
+    public void TakeDamage(string shooterName)
     {
+
         health--;
         Debug.Log("health--");
 
         if (health <= 0)
         {
 
-            GameManager.playerCount--;
+            NetworkManagerCustom.playerCount--;
             Debug.Log("playerCount--");
 
-            if (GameManager.playerCount <= 1)
-            {
-                gameManager.EndGame(bullet.GetComponent<Projectile>().myFather);
-            }
-            
-            cameraSpawnPoint
-                .gameObject
-                .GetComponentInChildren<CameraScript>()
-                .DieScreen.SetActive(true);
-            Debug.Log("BeforeDelete");
 
-            //NetworkServer.Destroy(gameObject);
+            Camera.DieScreen.SetActive(true);
+            Debug.Log("BeforeDelete");
+            if (NetworkManagerCustom.playerCount <= 1)
+            {
+                EndGame(shooterName);
+            }
+
+            //NetworkClient.Disconnect();
+            Destroy(lineRenderer.gameObject);
 
         }
+    }
+    [ClientRpc]
+    public void EndGame(string shooterName)
+    {
+        GameManager.Instance.EndGame(shooterName);
     }
 
 
