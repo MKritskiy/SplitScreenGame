@@ -26,10 +26,9 @@ public class PlayerControllerOnline : NetworkBehaviour, PlayerController
     private InputAction shootAction;
     private InputAction moveAction;
     private float lastShootTime = 0f;
-    
+
     public LineRenderer lineRenderer;
     GameObject closestObject = null;
-
 
     [SyncVar]
     private bool isGrabbingSync;
@@ -42,61 +41,48 @@ public class PlayerControllerOnline : NetworkBehaviour, PlayerController
 
     void Awake()
     {
-        
         playerInput = new PlayerInputActions();
-                    
+
         grabAction = playerInput.Player.Grab;
         shootAction = playerInput.Player.Shoot;
 
         playerName = "Player " + (NetworkManagerCustom.playerCount++ + 1);
         releaseVelocity = transform.forward;
-
-
     }
 
     void OnEnable()
     {
-            grabAction.Enable();
-            shootAction.Enable();
-        
-            grabAction.performed += CmdGrabPole;
-            shootAction.performed += CmdShoot;
+        grabAction.Enable();
+        shootAction.Enable();
 
-        
-        
+        grabAction.performed += CmdGrabPole;
+        shootAction.performed += CmdShoot;
     }
 
     void OnDisable()
     {
-        
-            grabAction.performed -= CmdGrabPole;
-            shootAction.performed -= CmdShoot;
+        grabAction.performed -= CmdGrabPole;
+        shootAction.performed -= CmdShoot;
 
-
-            grabAction.Disable();
-            shootAction.Disable();
-        
+        grabAction.Disable();
+        shootAction.Disable();
     }
 
     void Start()
     {
         lineRenderer.enabled = true;
         lineRenderer.positionCount = 2;
-
     }
 
     void Update()
     {
-        
-        //Debug.Log(isGrabbing);
     }
-    
+
     void FixedUpdate()
     {
         if (lineRenderer == null)
             return;
         if (!isGrabbingSync)
-        //if (!isGrabbing)
         {
             closestObject = FindClosestPole();
             if (closestObject != null)
@@ -111,9 +97,7 @@ public class PlayerControllerOnline : NetworkBehaviour, PlayerController
             else
             {
                 lineRenderer.enabled = false;
-
             }
-            //transform.position += releaseVelocity.normalized * speed * Time.deltaTime;
             transform.position += releaseVelocitySync.normalized * speed * Time.deltaTime;
         }
         else
@@ -127,14 +111,11 @@ public class PlayerControllerOnline : NetworkBehaviour, PlayerController
                 lineRenderer.SetPosition(1, gameObject.transform.position);
             }
             RotateAroundPole();
-
         }
-        
-        
     }
+
     private GameObject FindClosestPole()
     {
-        
         Collider[] colliders = Physics.OverlapSphere(transform.position, grabRadius);
         GameObject tmpClosestObject = null;
         float oldDist = 9999f;
@@ -152,11 +133,11 @@ public class PlayerControllerOnline : NetworkBehaviour, PlayerController
         }
         return tmpClosestObject;
     }
+
     [ClientRpc]
     private void GrabPole(InputAction.CallbackContext obj)
     {
         if (isGrabbingSync)
-        //if (isGrabbing)
         {
             ReleasePole();
             return;
@@ -170,70 +151,64 @@ public class PlayerControllerOnline : NetworkBehaviour, PlayerController
         {
             closestObject.GetComponentInParent<Renderer>().material.color = Color.yellow;
             grabbedPole = closestObject.transform.GetChild(0).transform;
-            //grabPoint = grabbedPole.position;
             grabPointSync = grabbedPole.position;
             gameObject.transform.SetParent(grabbedPole);
-            
-            //isGrabbing = true;
             isGrabbingSync = true;
         }
-        
     }
 
     [Command]
     private void CmdGrabPole(InputAction.CallbackContext obj)
     {
-        
         GrabPole(obj);
     }
-    
+
     void ReleasePole()
     {
         isGrabbingSync = false;
-        //isGrabbing = false;
         gameObject.transform.SetParent(null);
-        grabbedPole.GetComponentInParent<Renderer>().material = poleMaterial;
-        grabbedPole = null;
-
-        //Vector3 velocity = (grabPoint - transform.position);
+        if (grabbedPole != null)
+        {
+            grabbedPole.GetComponentInParent<Renderer>().material = poleMaterial;
+            grabbedPole = null;
+        }
         Vector3 velocity = (grabPointSync - transform.position);
-        //releaseVelocity = Vector3.Cross(velocity, Vector3.up);
         releaseVelocitySync = Vector3.Cross(velocity, Vector3.up);
     }
+
     [Command]
     void RotateAroundPole()
     {
         if (grabbedPole != null)
         {
-
-            grabbedPole.Rotate(0, rotationSpeed*Time.deltaTime, 0, Space.Self);
-            
+            grabbedPole.Rotate(0, rotationSpeed * Time.deltaTime, 0, Space.Self);
         }
     }
+
     [Command]
     void CmdRotateAroundPole()
     {
         RotateAroundPole();
     }
+
     [Server]
     void Shoot(InputAction.CallbackContext obj)
     {
-
-            if (Time.time - lastShootTime >= shootInterval)
-            {
-                var bullet = Instantiate(projectilePrefab, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
-                bullet.GetComponent<ProjectileOnline>().Init(gameObject);
-                NetworkServer.Spawn(bullet);
-
-                lastShootTime = Time.time;
-            }
-        
+        if (Time.time - lastShootTime >= shootInterval)
+        {
+            var bullet = Instantiate(projectilePrefab, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
+            bullet.GetComponent<ProjectileOnline>().Init(gameObject);
+            NetworkServer.Spawn(bullet);
+            lastShootTime = Time.time;
+        }
     }
+
     [Command]
     void CmdShoot(InputAction.CallbackContext obj)
     {
         Shoot(obj);
     }
+
     [ClientRpc]
     public void TakeDamage(string shooterName)
     {
@@ -249,24 +224,50 @@ public class PlayerControllerOnline : NetworkBehaviour, PlayerController
             Debug.Log("BeforeDelete");
             if (NetworkManagerCustom.playerCount <= 1)
             {
-                SetWinner(shooterName);
-                EndGame(shooterName);
+                CmdSetWinner(shooterName);
+                CmdEndGame(shooterName);
             }
 
-            Destroy(lineRenderer.gameObject);
+            lineRenderer.gameObject.SetActive(false);
         }
     }
 
     [Command]
+    public void CmdSetWinner(string shooterName)
+    {
+        SetWinner(shooterName);
+    }
+
+    [Command]
+    public void CmdEndGame(string shooterName)
+    {
+        EndGame(shooterName);
+    }
+
+    [Server]
     public void EndGame(string shooterName)
     {
         GameManager.Instance.EndGame(shooterName);
     }
 
-    [Command]
+    [ClientRpc]
     public void SetWinner(string shooterName)
     {
-        PlayerPrefs.SetString("WinnerName", shooterName);
+        GameData.Instance.SetWinnerName(shooterName);
     }
 
+
+    void OnDestroy()
+    {
+        if (grabbedPole != null)
+        {
+            grabbedPole.GetComponentInParent<Renderer>().material = poleMaterial;
+            grabbedPole = null;
+        }
+        if (lineRenderer != null)
+        {
+            lineRenderer.gameObject.SetActive(false);
+            //Destroy(lineRenderer.gameObject);
+        }
+    }
 }

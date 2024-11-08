@@ -25,7 +25,8 @@ public class GameManager : MonoBehaviour
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
-        } else
+        }
+        else
         {
             Instance = this;
         }
@@ -57,10 +58,10 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
     private void Update()
     {
     }
+
     public void SpawnPlayers(int numberOfPlayers)
     {
         for (int i = 0; i < numberOfPlayers; i++)
@@ -80,7 +81,6 @@ public class GameManager : MonoBehaviour
                     Random.Range(-gameFieldSize.y / 2, gameFieldSize.y / 2)
                 );
                 player = Instantiate(playerPrefab, spawnPosition, Quaternion.identity);
-
             }
 
             player.GetComponent<PlayerControllerLocal>().playerName = "Player " + (playerCount + 1);

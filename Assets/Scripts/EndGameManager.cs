@@ -1,39 +1,48 @@
 using Mirror;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class EndGameManager : NetworkBehaviour
+public class EndGameManager : MonoBehaviour
 {
-    NetworkManagerCustom networkManager;
-    public TMP_Text winnerName;
-    [SyncVar(hook = nameof(OnWinnerNameChanged))]
-    public string winnerNameText;
+    public static EndGameManager Instance;
+    public TMP_Text winnerNameText;
+    public string winnerName;
+
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else if (Instance != this)
+        {
+            Destroy(gameObject);
+        }
+    }
 
     void Start()
     {
-        networkManager = FindObjectOfType<NetworkManagerCustom>();
-        if (PlayerPrefs.HasKey("WinnerName"))
+        if (GameData.Instance != null)
         {
-            winnerNameText = PlayerPrefs.GetString("WinnerName");
+            GameData.Instance.gameObject.SetActive(true);
+            SetWinnerText(GameData.Instance.GetWinnerName());
         }
-        else
-            winnerNameText = networkManager.winnerName;
+    }
+
+    
+    public void SetWinnerText(string winnerText)
+    {
+        winnerNameText.text = winnerText+ " win!";
     }
 
     void OnWinnerNameChanged(string oldValue, string newValue)
     {
-        winnerName.text = newValue + " win!";
+        winnerNameText.text = newValue + " win!";
     }
 
     public void MainMenuButton()
     {
-        if (PlayerPrefs.HasKey("WinnerName"))
-        {
-            PlayerPrefs.DeleteKey("WinnerName");
-        }
         NetworkManager.singleton.StopHost();
         SceneManager.LoadScene("MainMenu");
     }

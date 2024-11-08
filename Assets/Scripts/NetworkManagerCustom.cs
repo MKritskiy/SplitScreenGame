@@ -1,5 +1,4 @@
 using Mirror;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -10,8 +9,7 @@ public class NetworkManagerCustom : NetworkManager
     public Transform[] spawnPoints;
     public Vector2 gameFieldSize = new Vector2(10f, 10f);
     public static int playerCount = 0;
-    //public ClientCounter clientCounter;
-    public string winnerName;
+
     public struct PosMessage : NetworkMessage
     {
     }
@@ -35,13 +33,13 @@ public class NetworkManagerCustom : NetworkManager
     {
         ServerChangeScene("GameSceneOnline");
     }
+
     public void OnEndGame(NetworkConnectionToClient conn, EndGameMessage message)
     {
-        winnerName = message.winnerName;
-
+        GameData.Instance.SetWinnerName(message.winnerName);
         ServerChangeScene("EndOnlineGameScene");
-
     }
+
     GameObject SpawnPlayer()
     {
         Transform spawnPoint;
@@ -71,13 +69,13 @@ public class NetworkManagerCustom : NetworkManager
         NetworkClient.Send(m); //отправка сообщения на сервер
         playerSpawned = true;
     }
-     
+
     public void StartGame()
     {
         StartGameMessage m = new StartGameMessage();
         NetworkClient.Send(m);
-        
     }
+
     public void EndGame()
     {
         EndGameMessage m = new EndGameMessage();
@@ -92,12 +90,6 @@ public class NetworkManagerCustom : NetworkManager
         NetworkServer.RegisterHandler<EndGameMessage>(OnEndGame);
 
         Debug.Log("Server started");
-
-        //GameObject clientCounterObject = new GameObject("ClientCounter");
-        //clientCounterObject.AddComponent<NetworkIdentity>();
-        //clientCounter = clientCounterObject.AddComponent<ClientCounter>();
-
-        //NetworkServer.Spawn(clientCounterObject);
     }
 
     public override void OnStopServer()
@@ -112,26 +104,19 @@ public class NetworkManagerCustom : NetworkManager
         base.OnStartClient();
         Debug.Log("Client started");
     }
+
     public override void OnClientConnect()
     {
         base.OnClientConnect();
-        //clientCounter.IncrementClientsCount();
-        //Debug.Log("Client connected. Total clients: " + clientCounter.clientsCount);
     }
 
     public override void OnClientDisconnect()
     {
         base.OnClientDisconnect();
-        //clientCounter.DecrementClientsCount();
-        //Debug.Log("Client disconnected. Total clients: " + clientCounter.clientsCount);
     }
 
     public override void Update()
     {
-        //if (Input.GetKeyDown(KeyCode.Mouse0) && !playerSpawned && playerConnected)
-        //{
-        //    ActivatePlayerSpawn();
-        //}
     }
 
     public override void OnStopClient()
@@ -148,6 +133,7 @@ public class NetworkManagerCustom : NetworkManager
             ActivatePlayerSpawn();
         }
     }
+
     public void ResetPlayerCount()
     {
         playerCount = 0;
@@ -155,7 +141,6 @@ public class NetworkManagerCustom : NetworkManager
 
     private void OnClientsCountChanged(int oldValue, int newValue)
     {
-        // Этот метод вызывается каждый раз, когда значение clientsCount изменяется
         Debug.Log("Clients count changed: " + newValue);
     }
 }
