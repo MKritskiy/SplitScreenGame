@@ -1,4 +1,6 @@
-using Mirror;
+using Photon.Pun;
+using Photon.Pun.UtilityScripts;
+using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -6,70 +8,81 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class LobbyController : MonoBehaviour
+public class LobbyController : MonoBehaviourPunCallbacks
 {
-    public NetworkManagerCustom networkManager;
-    //public ClientCounter clientCounter;
     public TMP_Text playerCountText;
-    public TMP_Text addressText;
-
+    public TMP_Text lobbyCodeText;
     public Button startGameButton;
+    public Toggle readyToggle;
+
+    private bool allPlayersReady = false;
+
     void Start()
     {
-        if (NetworkManager.singleton == null)
-        {
-            GameObject networkManagerObject = new GameObject("NetworkManager");
-            networkManager = networkManagerObject.AddComponent<NetworkManagerCustom>();
-            DontDestroyOnLoad(networkManagerObject);
-        }
-        else
-        {
-            networkManager = NetworkManager.singleton as NetworkManagerCustom;
-        }
-        networkManager.ResetPlayerCount();
-        if (PlayerPrefs.HasKey("HostAddress"))
-        {
-            string hostAddress = PlayerPrefs.GetString("HostAddress");
-            networkManager.networkAddress = hostAddress;
-            networkManager.StartClient();
-        }
-        else
-        {
-            networkManager.StartHost();
-        }
+        if (!PhotonNetwork.IsMasterClient)
+            startGameButton.gameObject.SetActive(false);
 
-        networkManager.playerPrefab = Resources.Load<GameObject>("Player"); // Убедитесь, что префаб игрока находится в папке Resources
-        addressText.text = "Address: " + networkManager.networkAddress;
-        //clientCounter = networkManager.clientCounter;
+        lobbyCodeText.text = "Lobby Code: " + PhotonNetwork.CurrentRoom.Name;
+        startGameButton.interactable = false;
+
+        readyToggle.onValueChanged.AddListener(OnReadyToggleChanged);
+        PhotonNetwork.AutomaticallySyncScene = true;
     }
 
     void Update()
     {
-        
-        if (networkManager.isNetworkActive)
-        {
-            //playerCountText.text = "Players: " + clientCounter.clientsCount;
-            //startGameButton.interactable = networkManager.numPlayers > 1;
-        }
+        playerCountText.text = "Players: " + PhotonNetwork.CurrentRoom.PlayerCount + "/" + PhotonNetwork.CurrentRoom.MaxPlayers;
+        startGameButton.interactable = allPlayersReady;
     }
-
+    
+    public void OnReadyToggleChanged(bool isReady)
+    {
+        PhotonNetwork.LocalPlayer.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { "isReady", isReady } });
+    }
+    
     public void StartGame()
     {
-        networkManager.StartGame();
+        PhotonNetwork.LoadLevel("GameSceneOnline");
     }
 
-    public void ExitLobby()
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
     {
-        
-        networkManager.StopHost();
-        networkManager.StopClient();
-        SceneManager.LoadScene("MainMenu");
-    }
-    private void ResetPlayerPrefs()
-    {
-        if (PlayerPrefs.HasKey("HostAddress"))
+        if (changedProps.ContainsKey("isReady"))
         {
-            PlayerPrefs.DeleteKey("HostAddress");
+            CheckAllPlayersReady();
         }
+    }
+
+    private void CheckAllPlayersReady()
+    {
+        allPlayersReady = true;
+        foreach (Player player in PhotonNetwork.PlayerList)
+        {
+            object isReady;
+            if (player.CustomProperties.TryGetValue("isReady", out isReady))
+            {
+                if (!(bool)isReady)
+                {
+                    allPlayersReady = false;
+                    break;
+                }
+            }
+            else
+            {
+                allPlayersReady = false;
+                break;
+            }
+        }
+    }
+
+    public void ExitBtn()
+    {
+        PhotonNetwork.LeaveRoom();
+        PhotonNetwork.Disconnect();
+    }
+
+    public override void OnLeftRoom()
+    {
+        SceneManager.LoadScene("MainMenu");
     }
 }

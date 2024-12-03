@@ -1,23 +1,23 @@
-using Mirror;
+using Photon.Pun;
+using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using static NetworkManagerCustom;
 
-public class GameManager : MonoBehaviour
+public class GameManager : MonoBehaviourPunCallbacks
 {
     public static GameManager Instance;
-    public GameObject playerPrefab; // Префаб игрока
-    public Transform[] spawnPoints; // Точки спавна игроков
-    public Vector2 gameFieldSize = new Vector2(10f, 10f); // Размер игрового поля
+    public GameObject playerPrefab;
+    public Transform[] spawnPoints;
+    public Vector2 gameFieldSize = new Vector2(10f, 10f);
     public GameObject cameraPrefab;
     public GameObject endGameScreen;
     public TextMeshProUGUI winnerNumber;
+    
     public int playerCount = 0;
     private int playerIndex = 0;
-    [SerializeField]
     public bool isNetworkGame = false;
 
     private void Awake()
@@ -39,6 +39,10 @@ public class GameManager : MonoBehaviour
             int numberOfPlayers = PlayerPrefs.GetInt("NumberOfPlayers", 1);
             playerCount = 0;
             SpawnPlayers(numberOfPlayers);
+        } else
+        {
+            SpawnPlayers(1);
+
         }
         endGameScreen.SetActive(false);
     }
@@ -47,19 +51,14 @@ public class GameManager : MonoBehaviour
     {
         if (isNetworkGame)
         {
-            EndGameMessage m = new EndGameMessage();
-            m.winnerName = winnerName;
-            NetworkClient.Send(m);
+            PhotonNetwork.CurrentRoom.CustomProperties["Winner"] = winnerName;
+            PhotonNetwork.LoadLevel("EndOnlineGameScene");
         }
         else
         {
             endGameScreen.SetActive(true);
             winnerNumber.text = winnerName + " win!";
         }
-    }
-
-    private void Update()
-    {
     }
 
     public void SpawnPlayers(int numberOfPlayers)
@@ -70,9 +69,9 @@ public class GameManager : MonoBehaviour
             GameObject player;
             if (spawnPoints.Length > 0)
             {
-                spawnPoint = spawnPoints[i % spawnPoints.Length];
-                player = Instantiate(playerPrefab, spawnPoint.position, spawnPoint.rotation);
-            }
+                spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length - 1)];
+                player = PhotonNetwork.Instantiate(playerPrefab.name, spawnPoint.position, spawnPoint.rotation);
+            } 
             else
             {
                 Vector3 spawnPosition = new Vector3(
@@ -80,14 +79,27 @@ public class GameManager : MonoBehaviour
                     0f,
                     Random.Range(-gameFieldSize.y / 2, gameFieldSize.y / 2)
                 );
-                player = Instantiate(playerPrefab, spawnPosition, Quaternion.identity);
+                player = PhotonNetwork.Instantiate(playerPrefab.name, spawnPosition, Quaternion.identity);
             }
-
-            player.GetComponent<PlayerControllerLocal>().playerName = "Player " + (playerCount + 1);
-            SetupCamera(numberOfPlayers, player.GetComponent<PlayerControllerLocal>().cameraSpawnPoint);
+            if (!isNetworkGame)
+            {
+                player.GetComponent<PlayerControllerLocal>().playerName = "Player " + (playerCount + 1);
+                SetupCamera(numberOfPlayers, player.GetComponent<PlayerControllerLocal>().cameraSpawnPoint);
+            } else
+            {
+                player.GetComponent<PlayerControllerOnline>().playerName = "Player " + (playerCount + 1);
+                playerCount++;
+                PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { "PlayerCount", playerCount } });
+            }
         }
     }
-
+    public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable propertiesThatChanged)
+    {
+        if (propertiesThatChanged.ContainsKey("PlayerCount"))
+        {
+            playerCount = (int)propertiesThatChanged["PlayerCount"];
+        }
+    }
     public void SetupCamera(int numbersOfPlayers, Transform cameraSpawnPoint)
     {
         Camera camera = cameraSpawnPoint.gameObject.GetComponentInChildren<Camera>();
@@ -96,13 +108,11 @@ public class GameManager : MonoBehaviour
         camera.enabled = true;
         if (isNetworkGame)
         {
-            // В сетевой игре каждый игрок имеет свою камеру
             camera.rect = new Rect(0, 0, 1, 1);
             UiCamera.rect = new Rect(0, 0, 1, 1);
         }
         else
         {
-            // В локальной игре разделение экрана
             playerIndex = playerCount;
             float width = 1f / numbersOfPlayers;
             float height = 1f;
@@ -117,7 +127,17 @@ public class GameManager : MonoBehaviour
 
     public void MainMenuButton()
     {
-        if (isNetworkGame) NetworkManager.singleton.StopHost();
+        if (isNetworkGame) PhotonNetwork.LeaveRoom();
         SceneManager.LoadScene("MainMenu");
+    }
+
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        base.OnPlayerLeftRoom(otherPlayer);
+        playerCount--;
+        if (playerCount <= 1)
+        {
+            EndGame(PhotonNetwork.LocalPlayer.NickName);
+        }
     }
 }

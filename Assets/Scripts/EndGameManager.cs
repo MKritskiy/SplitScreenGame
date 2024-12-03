@@ -1,9 +1,10 @@
 using Mirror;
+using Photon.Pun;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class EndGameManager : MonoBehaviour
+public class EndGameManager : MonoBehaviourPunCallbacks
 {
     public static EndGameManager Instance;
     public TMP_Text winnerNameText;
@@ -23,11 +24,7 @@ public class EndGameManager : MonoBehaviour
 
     void Start()
     {
-        if (GameData.Instance != null)
-        {
-            GameData.Instance.gameObject.SetActive(true);
-            SetWinnerText(GameData.Instance.GetWinnerName());
-        }
+        SetWinnerText(PhotonNetwork.CurrentRoom.CustomProperties["Winner"] as string);
     }
 
     
@@ -43,7 +40,7 @@ public class EndGameManager : MonoBehaviour
 
     public void MainMenuButton()
     {
-        NetworkManager.singleton.StopHost();
+        PhotonNetwork.LeaveRoom();
         SceneManager.LoadScene("MainMenu");
     }
 }

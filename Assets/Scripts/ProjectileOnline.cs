@@ -1,26 +1,14 @@
-using Mirror;
+using Photon.Pun;
 using System;
-using Unity.VisualScripting;
 using UnityEngine;
 
-public class ProjectileOnline : NetworkBehaviour
+public class ProjectileOnline : MonoBehaviourPun
 {
-    bool inited;
-
-
-    [Server]
-    public void Init(GameObject myFather)
-    {
-        this.myFather = myFather;
-        inited = true;
-    }
-
-
-
     public float speed = 50f;
     public float lifetime = 2f;
     [NonSerialized]
     public GameObject myFather;
+
     void Start()
     {
         Destroy(gameObject, lifetime);
@@ -28,30 +16,32 @@ public class ProjectileOnline : NetworkBehaviour
 
     void Update()
     {
-        if (inited && isServer)
+        if (photonView.IsMine)
         {
             transform.Translate(Vector3.forward * speed * Time.deltaTime);
         }
     }
-    [Server]
+
     void OnCollisionEnter(Collision collision)
     {
-        Debug.Log("ShootFunc");
-        if (inited && isServer)
+        if (photonView.IsMine)
         {
             if (collision.gameObject.CompareTag("Wall"))
             {
-                NetworkServer.Destroy(gameObject);
+                PhotonNetwork.Destroy(gameObject);
             }
             else if (collision.gameObject.CompareTag("PlayerModel") && collision.gameObject != myFather)
             {
-                Debug.Log("PlayerTakeDamage");
                 string shooterName = myFather.GetComponent<PlayerControllerOnline>().playerName;
-                collision.gameObject.GetComponentInParent<PlayerControllerOnline>().TakeDamage(shooterName);
-                Debug.Log("BulletDestroy");
-
-                NetworkServer.Destroy(gameObject);
+                collision.gameObject.GetComponentInParent<PlayerControllerOnline>().photonView.RPC("TakeDamage", RpcTarget.All, shooterName);
+                //collision.gameObject.GetComponentInParent<PlayerControllerOnline>().TakeDamage(shooterName);
+                if (gameObject!=null) PhotonNetwork.Destroy(gameObject);
             }
         }
+    }
+
+    public void Init(GameObject father)
+    {
+        myFather = father;
     }
 }

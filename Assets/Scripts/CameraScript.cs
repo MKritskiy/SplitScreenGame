@@ -1,4 +1,4 @@
-using Mirror;
+using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -19,30 +19,34 @@ public class CameraScript : MonoBehaviour
     {
         if (isNetworkGame)
         {
-            
-            isOwned = playerHP.GetComponentInParent<PlayerControllerOnline>().isOwned;
+            isOwned = playerHP.GetComponentInParent<PlayerControllerOnline>().photonView.IsMine;
             if (isOwned)
             {
                 father = playerHP.GetComponentInParent<PlayerControllerOnline>();
-                playerNumber.text = (father as PlayerControllerOnline).playerName;     
-            } else
+                playerNumber.text = (father as PlayerControllerOnline).playerName;
+            }
+            else
             {
                 gameObject.SetActive(false);
             }
-
         }
         else
         {
             father = playerHP.GetComponentInParent<PlayerControllerLocal>();
             playerNumber.text = (father as PlayerControllerLocal).playerName;
-
         }
         DieScreen.SetActive(false);
     }
 
     void Update()
-    { 
-        if (isNetworkGame) { playerHP.text = "HP: " + (father as PlayerControllerOnline)?.health; }
-        else { playerHP.text = "HP: " + (father as PlayerControllerLocal)?.health; }
+    {
+        if (isNetworkGame)
+        {
+            playerHP.text = "HP: " + (father as PlayerControllerOnline)?.health;
+        }
+        else
+        {
+            playerHP.text = "HP: " + (father as PlayerControllerLocal)?.health;
+        }
     }
 }
