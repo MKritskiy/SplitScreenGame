@@ -2,6 +2,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -13,24 +14,26 @@ public class MenuControllerOnline : MonoBehaviourPunCallbacks
     public Button createLobbyButton;
     public Button joinLobbyButton;
     public Button lobbyListButton;
+    public GameObject lobbyListPanel;
+    public GameObject lobbyListItemPrefab;
+    public Transform lobbyListContent;
+    public GameObject mainMenuPanel;
 
-    private bool isConnecting = false;
     private string roomNameToJoin = "";
 
     void Start()
     {
+        createLobbyButton.interactable = false;
         PhotonNetwork.ConnectUsingSettings();
         createLobbyButton.onClick.AddListener(CreateLobby);
         joinLobbyButton.onClick.AddListener(JoinLobby);
         lobbyListButton.onClick.AddListener(ShowLobbyList);
+        lobbyListPanel.SetActive(false);
     }
 
     public void CreateLobby()
     {
-        if (PhotonNetwork.IsConnected)
-        {
-            isConnecting = true;
-        } else
+        if (PhotonNetwork.IsConnectedAndReady)
         {
             RoomOptions roomOptions = new RoomOptions { MaxPlayers = 4 };
             string roomName = "Room_" + Random.Range(1000, 9999);
@@ -40,42 +43,40 @@ public class MenuControllerOnline : MonoBehaviourPunCallbacks
 
     public void JoinLobby()
     {
-        if (PhotonNetwork.IsConnected)
-        {
-            roomNameToJoin = lobbyCodeInput.text;
-            PhotonNetwork.JoinRoom(roomNameToJoin);
-        }
-        else
-        {
-            isConnecting = true;
-        }
+        
+        roomNameToJoin = lobbyCodeInput.text;
+        PhotonNetwork.JoinRoom(roomNameToJoin);
+
     }
 
     public void ShowLobbyList()
     {
-        // Реализация отображения списка лобби
+
+        lobbyListPanel.SetActive(true);
+        mainMenuPanel.SetActive(false);
+        PhotonNetwork.JoinLobby();
     }
 
     public override void OnConnectedToMaster()
     {
-        if (isConnecting)
+
+        if (roomNameToJoin != "")
         {
-            if (roomNameToJoin != "")
-            {
-                PhotonNetwork.JoinRoom(roomNameToJoin);
-            }
-            else
-            {
-                RoomOptions roomOptions = new RoomOptions { MaxPlayers = 4 };
-                string roomName = "Room_" + Random.Range(1000, 9999);
-                PhotonNetwork.CreateRoom(roomName, roomOptions);
-            }
-            isConnecting = false;
+            PhotonNetwork.JoinRoom(roomNameToJoin);
         }
+        createLobbyButton.interactable = true;
+
     }
 
     public override void OnJoinedRoom()
     {
+        int playerNum = 1;
+        string playerName = "Player " + playerNum;
+        while (PhotonNetwork.PlayerList.Select(p => p.NickName).Contains(playerName))
+        {
+            playerName = "Player " + playerNum++;
+        }
+        PhotonNetwork.LocalPlayer.NickName = playerName;
         SceneManager.LoadScene("LobbyScene");
     }
 
@@ -92,5 +93,30 @@ public class MenuControllerOnline : MonoBehaviourPunCallbacks
     public override void OnLeftRoom()
     {
         SceneManager.LoadScene("MainMenu");
+    }
+
+    public override void OnRoomListUpdate(List<RoomInfo> roomList)
+    {
+        foreach (Transform child in lobbyListContent)
+        {
+            Destroy(child.gameObject);
+        }
+
+        foreach (RoomInfo room in roomList)
+        {
+            GameObject lobbyItem = Instantiate(lobbyListItemPrefab, lobbyListContent);
+            TextMeshProUGUI lobbyNameText = lobbyItem.GetComponentInChildren<TextMeshProUGUI>();
+            Button joinButton = lobbyItem.GetComponentInChildren<Button>();
+
+            lobbyNameText.text = room.Name;
+            joinButton.onClick.AddListener(() => JoinLobbyByName(room.Name));
+        }
+    }
+
+    private void JoinLobbyByName(string roomName)
+    {
+        roomNameToJoin = roomName;
+        PhotonNetwork.JoinRoom(roomNameToJoin);
+        lobbyListPanel.SetActive(false);
     }
 }

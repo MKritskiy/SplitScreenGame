@@ -41,8 +41,9 @@ public class GameManager : MonoBehaviourPunCallbacks
             SpawnPlayers(numberOfPlayers);
         } else
         {
+            playerCount = PhotonNetwork.CurrentRoom.PlayerCount;
             SpawnPlayers(1);
-
+            
         }
         endGameScreen.SetActive(false);
     }
@@ -87,17 +88,8 @@ public class GameManager : MonoBehaviourPunCallbacks
                 SetupCamera(numberOfPlayers, player.GetComponent<PlayerControllerLocal>().cameraSpawnPoint);
             } else
             {
-                player.GetComponent<PlayerControllerOnline>().playerName = "Player " + (playerCount + 1);
-                playerCount++;
-                PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { "PlayerCount", playerCount } });
+                player.GetComponent<PlayerControllerOnline>().playerName = PhotonNetwork.LocalPlayer.NickName;
             }
-        }
-    }
-    public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable propertiesThatChanged)
-    {
-        if (propertiesThatChanged.ContainsKey("PlayerCount"))
-        {
-            playerCount = (int)propertiesThatChanged["PlayerCount"];
         }
     }
     public void SetupCamera(int numbersOfPlayers, Transform cameraSpawnPoint)
