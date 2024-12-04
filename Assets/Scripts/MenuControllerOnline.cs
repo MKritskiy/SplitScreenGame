@@ -70,6 +70,11 @@ public class MenuControllerOnline : MonoBehaviourPunCallbacks
 
     public override void OnJoinedRoom()
     {
+        SetUniquePlayerName();
+        SceneManager.LoadScene("LobbyScene");
+    }
+    private void SetUniquePlayerName()
+    {
         int playerNum = 1;
         string playerName = "Player " + playerNum;
         while (PhotonNetwork.PlayerList.Select(p => p.NickName).Contains(playerName))
@@ -77,9 +82,7 @@ public class MenuControllerOnline : MonoBehaviourPunCallbacks
             playerName = "Player " + playerNum++;
         }
         PhotonNetwork.LocalPlayer.NickName = playerName;
-        SceneManager.LoadScene("LobbyScene");
     }
-
     public override void OnJoinRoomFailed(short returnCode, string message)
     {
         Debug.LogError("Failed to join room: " + message);
@@ -92,6 +95,8 @@ public class MenuControllerOnline : MonoBehaviourPunCallbacks
 
     public override void OnLeftRoom()
     {
+        PhotonNetwork.AutomaticallySyncScene = false;
+
         SceneManager.LoadScene("MainMenu");
     }
 

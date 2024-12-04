@@ -24,7 +24,9 @@ public class EndGameManager : MonoBehaviourPunCallbacks
 
     void Start()
     {
-        SetWinnerText(PhotonNetwork.CurrentRoom.CustomProperties["Winner"] as string);
+
+        SetWinnerText(PhotonNetwork.CurrentRoom?.CustomProperties["Winner"] as string);
+        
     }
 
     
@@ -40,7 +42,21 @@ public class EndGameManager : MonoBehaviourPunCallbacks
 
     public void MainMenuButton()
     {
-        PhotonNetwork.LeaveRoom();
+        if (PhotonNetwork.IsConnectedAndReady)
+        {
+            PhotonNetwork.AutomaticallySyncScene = false;
+
+            PhotonNetwork.LeaveRoom();
+        }
+
+        SceneManager.LoadScene("MainMenu");
+    }
+
+    public override void OnLeftRoom()
+    {
+        PhotonNetwork.AutomaticallySyncScene = false;
+
+        //PhotonNetwork.LocalPlayer.NickName = "";
         SceneManager.LoadScene("MainMenu");
     }
 }

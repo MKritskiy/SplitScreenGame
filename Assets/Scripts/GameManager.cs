@@ -70,7 +70,16 @@ public class GameManager : MonoBehaviourPunCallbacks
             GameObject player;
             if (spawnPoints.Length > 0)
             {
-                spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length - 1)];
+                if (isNetworkGame)
+                {
+                    int num = (int)(PhotonNetwork.LocalPlayer.NickName[PhotonNetwork.LocalPlayer.NickName.Length-1]);
+                    spawnPoint = spawnPoints[num%spawnPoints.Length];
+
+                }
+                else
+                {
+                    spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length - 1)];
+                }
                 player = PhotonNetwork.Instantiate(playerPrefab.name, spawnPoint.position, spawnPoint.rotation);
             } 
             else
@@ -119,6 +128,8 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     public void MainMenuButton()
     {
+        PhotonNetwork.AutomaticallySyncScene = false;
+
         if (isNetworkGame) PhotonNetwork.LeaveRoom();
         SceneManager.LoadScene("MainMenu");
     }

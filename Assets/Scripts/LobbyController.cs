@@ -46,7 +46,6 @@ public class LobbyController : MonoBehaviourPunCallbacks
     
     public void StartGame()
     {
-        PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { "PlayerCount", 0 } });
         int playerNum = 1;
         //string playerName = "Player " + playerNum;
         //while (PhotonNetwork.PlayerList.Select(p => p.NickName).Contains(playerName))
@@ -94,11 +93,14 @@ public class LobbyController : MonoBehaviourPunCallbacks
     public void ExitBtn()
     {
         PhotonNetwork.LeaveRoom();
-        PhotonNetwork.Disconnect();
+        PhotonNetwork.LeaveLobby();
+
     }
 
     public override void OnLeftRoom()
     {
+        PhotonNetwork.AutomaticallySyncScene = false;
+
         SceneManager.LoadScene("MainMenu");
     }
 

@@ -40,9 +40,10 @@ public class PlayerControllerOnline : MonoBehaviourPunCallbacks, PlayerControlle
         playerName = "Player " + (PhotonNetwork.CurrentRoom.PlayerCount + 1);
         releaseVelocity = transform.forward;
     }
-
-    void OnEnable()
+    
+    private void OnEnable()
     {
+        base.OnEnable();
         if (photonView.IsMine)
         {
             grabAction.Enable();
@@ -53,7 +54,7 @@ public class PlayerControllerOnline : MonoBehaviourPunCallbacks, PlayerControlle
         }
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
         if (photonView.IsMine)
         {
@@ -212,14 +213,17 @@ public class PlayerControllerOnline : MonoBehaviourPunCallbacks, PlayerControlle
 
     void OnDestroy()
     {
-        if (grabbedPole != null)
+        if (this)
         {
-            grabbedPole.GetComponentInParent<Renderer>().material = poleMaterial;
-            grabbedPole = null;
-        }
-        if (lineRenderer != null)
-        {
-            lineRenderer.gameObject.SetActive(false);
+            if (grabbedPole != null)
+            {
+                grabbedPole.GetComponentInParent<Renderer>().material = poleMaterial;
+                grabbedPole = null;
+            }
+            if (lineRenderer != null)
+            {
+                lineRenderer.gameObject.SetActive(false);
+            }
         }
     }
 }
